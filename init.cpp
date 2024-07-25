@@ -13,12 +13,33 @@ vector<u64>clearmask(64);
 vector<vector<u64> >piece_keys(5,vector<u64>(100));
 u64 side_key;
 
+vector<int>file_board(board_sq_num);
+vector<int>rank_board(board_sq_num);
+
 #define rand64 (    ((u64) rand() )    |\
                     ((u64) rand() << 15) |\
                     ((u64) rand()<<30) |\
                     ((u64) rand()<<45) |\
                     (((u64) rand() & 0xf)<<60)    )
 
+void init_file_rank_board(){
+    int index=0,file=fa,rank=r1;
+    int sq=a1,sq64=0;
+
+    for(index=0;index<board_sq_num;index++){
+        file_board[index]=off_board;
+        rank_board[index]=off_board;
+    }
+
+    for(rank=r1;rank<=r8;rank++){
+        for(file=fa;file<=fh;file++){
+
+            sq=fr_to_sq(file,rank);
+            file_board[sq]=file;
+            rank_board[sq]=rank;
+        }
+    }
+}
 
 void inithashkey(){
     int index=0;
@@ -47,7 +68,7 @@ void init_bitmask(){
     }
 }
 
-void initsq120to64(){
+void initsq100to64(){
     int index=0;
     int file=fa;
     int rank=r1;
@@ -60,7 +81,7 @@ void initsq120to64(){
     }
 
     for(index=0;index<64;index++){
-        sq64to100[index]=101;
+        sq64to100[index]=100;
     }
 
     for(rank=r1;rank<=r8;rank++){
@@ -76,10 +97,12 @@ void initsq120to64(){
 
 void all_init(){
 
-    initsq120to64();
+    initsq100to64();
 
     init_bitmask();
 
     inithashkey();
+
+    init_file_rank_board();
 }
     

@@ -4,7 +4,6 @@
 
 using namespace std;
 
-
 int popbit(u64 & bb){
     int i=0;
     for(i=0;i<64;i++){

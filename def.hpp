@@ -28,10 +28,11 @@ typedef  unsigned long long u64;
 #define board_sq_num 100
 #define maxmoves 2048// half moves
 
-#define fr_to_sq(f,r) ((11+(f)) + ((r)*10))
+#define fr_to_sq(f,r) ((11+(f)) + ((r)*10))// gives 100 based index
 #define SQ64(sq100) (sq100to64[(sq100)])
 #define SQ100(sq64) (sq64to100[(sq64)])
 
+#define start_fen "o1o1o1o1/1o1o1o1o/o1o1o1o1/8/8/O1O1O1O1/1O1O1O1O/O1O1O1O1 b 0 1"
 
 #define pop(b)  popbit(b)
 #define cnt(b)  countbit(b)
@@ -90,6 +91,17 @@ extern vector<u64> clearmask;
 extern vector<vector<u64>> piece_keys;
 extern u64 side_key;
 
+extern string piece_char;
+extern string side_char;
+extern string rank_char;
+extern string file_char;
+
+extern vector<int> piece_value;
+extern vector<int> piece_color;
+
+extern vector<int> file_board;
+extern vector<int> rank_board;
+
 //init.cpp
 extern void all_init();
 
@@ -100,5 +112,12 @@ extern int countbit(u64 b);
 
 // hashkey.cpp
 extern u64 generate_pos_key(const s_board *pos);
+
+//board.cpp
+extern void reset_board(s_board *pos);
+extern int parse_fen(const char * fen ,s_board * pos);
+extern void print_board(const s_board *pos);
+extern void update_list_material(s_board *pos);
+extern int check_board(const s_board *pos);
 
 #endif
