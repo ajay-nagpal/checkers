@@ -151,7 +151,7 @@ void update_list_material(s_board *pos){
 
             if(piece==wm){
                 setbit(pos->men[white],SQ64(sq));// set the bit on the bitbmard on the position for white men
-                // setting a bit in a a64 index format  and sq is in 120 indexing format
+                // setting a bit in a a64 index format  and sq is in 100 indexing format
                 setbit(pos->men[both],SQ64(sq));
             }
             else if(piece==bm){
@@ -213,7 +213,7 @@ int check_board(const s_board *pos){
     while(temp_men[white]){
         sq64=pop(temp_men[white]);//pop removes a bit from a bitboard and returns a
         // 64 based square index we are popping from temp board and 
-        ASSERT(pos->pieces[SQ100(sq64)]==wm);// getting 120 based square from that 64 based square
+        ASSERT(pos->pieces[SQ100(sq64)]==wm);// getting 100 based square from that 64 based square
         // and checking from aour pieces array that there is wm bm on that square or not
     }
 

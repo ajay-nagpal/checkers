@@ -11,3 +11,5 @@ string  file_char="abcdefgh";
 
 vector<int>piece_value{0,10,30,10,30};
 vector<int>piece_color{both,white,white,black,black};
+vector<bool>piece_men {false, true, false, true, false};
+vector<bool>piece_king{false, false, true, false, true};

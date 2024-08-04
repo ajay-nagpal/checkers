@@ -26,13 +26,12 @@ typedef  unsigned long long u64;
 #define NAME "vice 1.0" 
 
 #define board_sq_num 100
-#define maxmoves 2048// half moves
 
 #define fr_to_sq(f,r) ((11+(f)) + ((r)*10))// gives 100 based index
 #define SQ64(sq100) (sq100to64[(sq100)])
 #define SQ100(sq64) (sq64to100[(sq64)])
 
-#define start_fen "o1o1o1o1/1o1o1o1o/o1o1o1o1/8/8/O1O1O1O1/1O1O1O1O/O1O1O1O1 b 0 1"
+#define start_fen "1o1o1o1o/o1o1o1o1/1o1o1o1o/8/8/O1O1O1O1/1O1O1O1O/O1O1O1O1 b 0 1"
 
 #define pop(b)  popbit(b)
 #define cnt(b)  countbit(b)
@@ -40,12 +39,25 @@ typedef  unsigned long long u64;
 #define setbit(bb,sq)   ((bb) |=setmask[(sq)])
 #define clearbit(bb,sq) ((bb) &=clearmask[(sq)])
 
+#define is_ki(p) (piece_king[(p)])
+
+#define from_sq(m)     ((m) & 0x7F )
+#define to_sq(m)       (((m)>>7) & 0x7F )
+#define captured(m)    (((m)>>14) & 7 )
+
+#define promoted(m)    (((m)>>19) & 1 )
+#define move_flag_cap  0x1C000
+#define move_flag_prom 0x20000 
+
+#define maxmoves 1024// half moves
+#define max_pos_moves 128// 1 given pos pr max move
+
 enum piece{emptyy,wm,wk,bm,bk};
 enum file{fa,fb,fc,fd,fe,ff,fg,fh,fn};
 enum rank{r1,r2,r3,r4,r5,r6,r7,r8,rn};
 enum color{white,black,both};
 
-enum board120{
+enum board100{
     a1=11,b1,c1,d1,e1,f1,g1,h1,
     a2=21,b2,c2,d2,e2,f2,g2,h2,
     a3=31,b3,c3,d3,e3,f3,g3,h3,
@@ -54,6 +66,18 @@ enum board120{
     a6=61,b6,c6,d6,e6,f6,g6,h6,
     a7=71,b7,c7,d7,e7,f7,g7,h7,
     a8=81,b8,c8,d8,e8,f8,g8,h8,no_sq,off_board
+};
+
+class s_move{
+    public:
+    int move,score;
+};
+
+class s_movelist{
+    public:
+    
+    int count;//count of the number of move on the movelist
+    vector<s_move>moves=vector<s_move>(max_pos_moves);
 };
 
 class s_undo{
@@ -98,6 +122,8 @@ extern string file_char;
 
 extern vector<int> piece_value;
 extern vector<int> piece_color;
+extern vector<bool>piece_men;
+extern vector<bool>piece_king;
 
 extern vector<int> file_board;
 extern vector<int> rank_board;
@@ -119,5 +145,25 @@ extern int parse_fen(const char * fen ,s_board * pos);
 extern void print_board(const s_board *pos);
 extern void update_list_material(s_board *pos);
 extern int check_board(const s_board *pos);
+
+// attack.cpp
+extern int square_attacked(const int sq,const int side, const s_board *pos);
+
+//validate.cpp
+extern int is_sq_100(const int sq);
+extern int piece_valid_empty_off(const int pce);
+extern int sq_on_board(const int sq);
+extern int side_valid(const int side);
+extern int file_rank_valid(const int fr);
+extern int piece_valid_empty(const int piece);
+extern int piece_valid(const int piece);
+
+//io.cpp
+extern char * print_move(const int move);
+extern char * print_sq(const int sq);
+extern void print_move_list(const s_movelist* list);
+
+// movegen.cpp
+extern void generate_all_moves(const s_board * pos,s_movelist * list);
 
 #endif
