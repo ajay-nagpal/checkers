@@ -166,4 +166,8 @@ extern void print_move_list(const s_movelist* list);
 // movegen.cpp
 extern void generate_all_moves(const s_board * pos,s_movelist * list);
 
+//makemove.cpp
+extern void make_move(s_board * pos,int move);
+extern void take_move(s_board *pos);
+
 #endif

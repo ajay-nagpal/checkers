@@ -27,6 +27,8 @@ int parse_fen( const char* fen ,s_board * pos){
         switch(*fen){
             case 'o': piece=wm;break;
             case 'O': piece=bm;break;
+            case '*': piece=wk;break;
+            case '#': piece=bk;break;
 
             case '1':
             case '2':
@@ -178,7 +180,7 @@ int check_board(const s_board *pos){
     // loop on piece type from wm to black king bk
     for(temp_piece=wm;temp_piece<=bk;temp_piece++){
         for(temp_piece_num=0;temp_piece_num<pos->piece_num[temp_piece];temp_piece_num++){
-
+            
             SQ100=pos->piece_list[temp_piece][temp_piece_num];// from our piece list get the square for our piece
             ASSERT(pos->pieces[SQ100]==temp_piece);
         }
