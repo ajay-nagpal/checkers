@@ -11,8 +11,8 @@ int piece_valid_empty_off(const int pce) {
 	return (piece_valid_empty(pce) || pce == off_board);
 }
 
-int  sq_on_board(const int sq){
-    return file_board[sq]==off_board?0:1;
+int  sq_onboard(const int sq){
+    return ((file_board[sq]!=off_board) || ((sq>10 && sq<89) && (sq>0)));// boundry offboard h
 }
 
 int side_valid(const int side){

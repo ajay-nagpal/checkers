@@ -63,7 +63,6 @@ int parse_fen( const char* fen ,s_board * pos){
             }
             file++;
         }
-
         fen++;
     }
 
@@ -90,19 +89,18 @@ void reset_board(s_board *pos){
         pos->material[index]=0;
     }
 
-    for(index=0;index<3;index++)
+    for(index=0;index<3;index++){
         pos->men[index]=0ULL;
-
+        pos->king[index]=0ULL;
+    }
+        
     for(index=0;index<5;index++)
         pos->piece_num[index]=0;
     
-    pos->side=both;
-
-    pos->fortymove=0;
-
     pos->ply=0;// number of half move played in current search
     pos->hisply=0;// half movess played in whole game
-
+    
+    pos->side=both;
     pos->poskey=0ULL;
 }
 
@@ -160,6 +158,14 @@ void update_list_material(s_board *pos){
                 setbit(pos->men[black],SQ64(sq));
                 setbit(pos->men[both],SQ64(sq));
             }
+            else if(piece==wk){
+                setbit(pos->king[black],SQ64(sq));
+                setbit(pos->king[both],SQ64(sq));
+            }
+            else if(piece==bk){
+                setbit(pos->king[black],SQ64(sq));
+                setbit(pos->king[both],SQ64(sq));
+            }
         }
     }
 }
@@ -171,10 +177,15 @@ int check_board(const s_board *pos){
     int sq64=0,temp_piece=0,temp_piece_num=0,SQ100=0,color=0,mcount=0;
 
     vector<u64> temp_men={0ULL,0ULL,0ULL};
+    vector<u64> temp_king={0ULL,0ULL,0ULL};
 
     temp_men[white]=pos->men[white];
     temp_men[black]=pos->men[black];
     temp_men[both]=pos->men[both];
+
+    temp_king[white]=pos->king[white];
+    temp_king[black]=pos->king[black];
+    temp_king[both]=pos->king[both];
 
     // check piece list
     // loop on piece type from wm to black king bk
@@ -211,6 +222,15 @@ int check_board(const s_board *pos){
     mcount=cnt(temp_men[both]);
     ASSERT(mcount==(pos->piece_num[bm]+pos->piece_num[wm]));
 
+    // mcount=cnt(temp_king[white]);
+    // ASSERT(mcount==pos->piece_num[wk]);
+
+    // mcount=cnt(temp_king[black]);
+    // ASSERT(mcount==pos->piece_num[bk]);
+
+    // mcount=cnt(temp_king[both]);
+    // ASSERT(mcount==(pos->piece_num[bk]+pos->piece_num[wk]));
+
     // check bitboard squares
     while(temp_men[white]){
         sq64=pop(temp_men[white]);//pop removes a bit from a bitboard and returns a
@@ -229,6 +249,22 @@ int check_board(const s_board *pos){
         ASSERT((pos->pieces[SQ100(sq64)]==bm) || (pos->pieces[SQ100(sq64)]==wm));
     }
 
+    // while(temp_king[white]){
+    //     sq64=pop(temp_king[white]);//pop removes a bit from a bitboard and returns a
+    //     // 64 based square index we are popping from temp board and 
+    //     ASSERT(pos->pieces[SQ100(sq64)]==wk);// getting 100 based square from that 64 based square
+    //     // and checking from aour pieces array that there is wk on that square or not
+    // }
+
+    // while(temp_king[black]){
+    //     sq64=pop(temp_king[black]);
+    //     ASSERT(pos->pieces[SQ100(sq64)]==bk);
+    // }
+
+    // while(temp_king[both]){
+    //     sq64=pop(temp_king[both]);
+    //     ASSERT((pos->pieces[SQ100(sq64)]==bk) || (pos->pieces[SQ100(sq64)]==wk));
+    // }
     // material,minor,major,big peieces should be same 
     ASSERT(temp_material[white]==pos->material[white]
             && temp_material[black]==pos->material[black]);

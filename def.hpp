@@ -23,7 +23,7 @@ if(!(n)){\
 
 typedef  unsigned long long u64;
 
-#define NAME "vice 1.0" 
+#define NAME "Jasper 1.0" 
 
 #define board_sq_num 100
 
@@ -43,9 +43,10 @@ typedef  unsigned long long u64;
 
 #define from_sq(m)     ((m) & 0x7F )
 #define to_sq(m)       (((m)>>7) & 0x7F )
-#define captured(m)    (((m)>>14) & 7 )
+#define cap1(m)        (((m)>>14) & 7 )
+#define cap2(m)        (((m)>>17) & 0x7F )
 
-#define promoted(m)    (((m)>>19) & 1 )
+#define promoted(m)    (((m)>>18) & 1 )
 #define move_flag_cap  0x1C000
 #define move_flag_prom 0x20000 
 
@@ -83,27 +84,27 @@ class s_movelist{
 class s_undo{
     public:
 
-    int moves,fortymove;
+    int moves;
     u64 poskey;
 };
 
 class s_board {
     public:
-
-    int side,ply,hisply,fortymove;
+    int side;
     u64 poskey;
+    int ply,hisply;
+    vector<int>pieces=vector<int>(board_sq_num);//vector<pieces>
     
-    vector<int>pieces=vector<int>(board_sq_num);
     vector<u64>men=vector<u64>(3);
-    vector<int>king_sq=vector<int>(2);
+    vector<u64>king=vector<u64>(3);
 
     vector<int>piece_num=vector<int>(5);// num of pieces we have on board
 
     vector<int>material=vector<int>(2);
 
     vector<s_undo>history=vector<s_undo>(maxmoves);
+    // let piecelist[wm][0]=a1;  lkike this
     vector<vector<int>>piece_list=vector<vector<int>>(5,vector<int>(12));
-
 };
 
 extern vector<int> sq100to64;
@@ -152,7 +153,7 @@ extern int square_attacked(const int sq,const int side, const s_board *pos);
 //validate.cpp
 extern int is_sq_100(const int sq);
 extern int piece_valid_empty_off(const int pce);
-extern int sq_on_board(const int sq);
+extern int sq_onboard(const int sq);
 extern int side_valid(const int side);
 extern int file_rank_valid(const int fr);
 extern int piece_valid_empty(const int piece);

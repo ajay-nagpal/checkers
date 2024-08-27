@@ -7,10 +7,10 @@ using namespace std;
 vector<int>sq100to64(board_sq_num);
 vector<int>sq64to100(64);
 
-vector<u64>setmask(64);
-vector<u64>clearmask(64);
+vector<u64>setmask(64,0);
+vector<u64>clearmask(64,0);
 
-vector<vector<u64> >piece_keys(5,vector<u64>(100));
+vector<vector<u64>>piece_keys(5,vector<u64>(100));
 u64 side_key;
 
 vector<int>file_board(board_sq_num);
@@ -47,7 +47,6 @@ void inithashkey(){
 
     for(index=0;index<5;index++){
         for(index2=0;index2<100;index2++){
-
             piece_keys[index][index2]=rand64;
         }
     }
@@ -58,13 +57,8 @@ void init_bitmask(){
     int index=0;
 
     for(index=0;index<64;index++){
-        setmask[index]=0ULL;
-        clearmask[index]=0ULL;
-    }
-    for(index=0;index<64;index++){
-        setmask[index] |= (1ULL<<index);
-        
-        clearmask[index]= ~setmask[index];
+        setmask[index] |= (1ULL<<index);// setmask[0]==63 0 1
+        clearmask[index]= ~setmask[index];// clearmask[0]==63 1 0
     }
 }
 

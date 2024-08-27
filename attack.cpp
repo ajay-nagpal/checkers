@@ -8,7 +8,7 @@ const vector<int> king_dir{-9,-11,11,9};
 
 int square_attacked(const int sq,const int side, const s_board *pos){// sq is attacked , which side is attacking
 
-    ASSERT(sq_on_board(sq));
+    ASSERT(sq_onboard(sq));
     ASSERT(side_valid(side));
     ASSERT(check_board(pos));
 
@@ -26,26 +26,28 @@ int square_attacked(const int sq,const int side, const s_board *pos){// sq is at
     }
     // kings //attacked by king
     for(index=0;index<king_dir.size();index++){
-        piece=pos->pieces[sq+king_dir[index]];
-        if(piece!=off_board && is_ki(piece) && piece_color[piece]==side){
-            int a=king_dir[index];
+        int a=king_dir[index];
+        piece=pos->pieces[sq+a];
+        
+        if(sq_onboard(piece) && is_ki(piece) && piece_color[piece]==side){
+            
             if(a==-9){//-9 pr king
-                if(pos->pieces[sq+9]==emptyy){// +9 emptyy ho
+                if(sq_onboard(pos->pieces[sq+9]) && pos->pieces[sq+9]==emptyy){// +9 emptyy ho
                     return true;
                 }
             }
             else if(a==-11){
-                if(pos->pieces[sq+11]==emptyy){
+                if(sq_onboard(pos->pieces[sq+11]) && pos->pieces[sq+11]==emptyy){
                     return true;
                 }
             }
             else if(a==9){
-                if(pos->pieces[sq-9]==emptyy){
+                if(sq_onboard(pos->pieces[sq-9]) && pos->pieces[sq-9]==emptyy){
                     return true;
                 }
             }
             else if(a==11){
-                if(pos->pieces[sq-11]==emptyy){
+                if(sq_onboard(pos->pieces[sq-11]) && pos->pieces[sq-11]==emptyy){
                     return true;
                 }
             }

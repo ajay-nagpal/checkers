@@ -9,14 +9,14 @@ using namespace std;
 
 static void clear_piece(const int sq, s_board * pos){//clear piece from board
 
-    ASSERT(sq_on_board(sq));
+    ASSERT(sq_onboard(sq));
     int piece=pos->pieces[sq];
     ASSERT(piece_valid(piece));
 
     int color=piece_color[piece];
     int index=0,t_piece_num=-1;
 
-    hash_piece(piece,sq);
+    hash_piece(piece,sq);// hash out old piece
 
     pos->pieces[sq]=emptyy;
     pos->material[color]-=piece_value[piece];
@@ -24,6 +24,10 @@ static void clear_piece(const int sq, s_board * pos){//clear piece from board
     if(piece_men[pos->pieces[sq]]){
         clearbit(pos->men[color],SQ64(sq));
         clearbit(pos->men[both],SQ64(sq));
+    }
+    else if(piece_king[pos->pieces[sq]]){
+        clearbit(pos->king[color],SQ64(sq));
+        clearbit(pos->king[both],SQ64(sq));
     }
     
     for(index=0;index<pos->piece_num[piece];index++){
@@ -40,16 +44,20 @@ static void clear_piece(const int sq, s_board * pos){//clear piece from board
 
 static void add_piece(const int sq,s_board * pos, const int piece){
     ASSERT(piece_valid(piece));
-    ASSERT(sq_on_board(sq));
+    ASSERT(sq_onboard(sq));
 
     int color=piece_color[piece];//color of the piece that we are adding 
-    hash_piece(piece,sq);//hash this piece in to the hashkey on that square
+    hash_piece(piece,sq);//hash in
 
     pos->pieces[sq]=piece;//add that piece in piece array on that square
 
     if(piece_men[piece]){
         setbit(pos->men[color],SQ64(sq));
         setbit(pos->men[both],SQ64(sq));
+    }
+    else if(piece_king[piece]){
+        setbit(pos->king[color],SQ64(sq));
+        setbit(pos->king[both],SQ64(sq));
     }
     
     pos->material[color]+=piece_value[piece];//add material value of that piece us material m
@@ -58,45 +66,13 @@ static void add_piece(const int sq,s_board * pos, const int piece){
 
 // move piece function
 static void move_piece(const int from, const int to, s_board * pos){
-    ASSERT(sq_on_board(from));
-    ASSERT(sq_on_board(to));
+    ASSERT(sq_onboard(from));
+    ASSERT(sq_onboard(to));
 
-    int index=0;
     int piece=pos->pieces[from];// from ke piece konsa h and color konsa h
-    int color=piece_color[piece];
 
-    #ifdef debug
-        int t_piece_num=false;// we must find a piece from out piece list with same value as from
-        //if we dont then this will stay false
-    #endif
-
-    hash_piece(piece,from);
-    pos->pieces[from]=emptyy;// from vale ko empty set kra
-
-    hash_piece(piece,to);
-    pos->pieces[to]=piece;
-
-    if(piece_men[pos->pieces[from]]){
-        clearbit(pos->men[color],SQ64(from));
-        clearbit(pos->men[both],SQ64(from));
-    }
-    if(piece_men[pos->pieces[to]]){
-        setbit(pos->men[color],SQ64(to));
-        setbit(pos->men[both],SQ64(to));
-    }
-    
-    // now  we loop through all the pieces of this piece type
-    for(index=0;index<pos->piece_num[piece];index++){
-        if(pos->piece_list[piece][index]==from){
-            pos->piece_list[piece][index]=to;
-            #ifdef debug
-                t_piece_num=true;// set it true
-            #endif
-            break;
-        }
-    }
-    ASSERT(t_piece_num);// we must do ASSERT cz we must found the from piece
-    // if we dont then out piece list dont matches with out pieces array
+    clear_piece(from,pos);
+    add_piece(to,pos,piece);
 }
 
 // make move function
@@ -108,8 +84,8 @@ void make_move(s_board * pos,int move){
     int to=to_sq(move);
     int side=pos->side;
 
-    ASSERT(sq_on_board(from));
-    ASSERT(sq_on_board(to));
+    ASSERT(sq_onboard(from));
+    ASSERT(sq_onboard(to));
 
     ASSERT(side_valid(side));
     ASSERT(piece_valid(pos->pieces[from]));
@@ -117,22 +93,30 @@ void make_move(s_board * pos,int move){
     pos->history[pos->hisply].poskey=pos->poskey;// store the hash key in history array
     // then we store information history array
     pos->history[pos->hisply].moves=move;// store the move that was made
-    pos->history[pos->hisply].fortymove=pos->fortymove;//current state of the forty move rule
 
-    int capture=captured(move);
-    pos->fortymove++;
-
-    if(capture!=emptyy){
-        ASSERT(piece_valid(capture));
-        clear_piece(to,pos);// clear this piece from to square
-        pos->fortymove=0;// because when the captures made it get reset to zero
+    int cap=captured(move);
+    int cap_sq;
+    if(cap!=emptyy){// cap piece bta rha
+        ASSERT(piece_valid(cap));
+        // cap ka sq  bhi clear krna h
+        if(piece_color[cap]==black){
+            if(to==from-18){
+                cap_sq=from-9;
+            }
+            else    
+                cap_sq=from-11;
+        }
+        else{
+            if(to==from+18){
+                cap_sq=from+9;
+            }
+            else    
+                cap_sq=from+11;
+        }
+        clear_piece(cap_sq,pos);
     }
     pos->hisply++;// used for indexing our history array
     pos->ply++;//used for search
-
-    if(piece_men[pos->pieces[from]]){
-        pos->fortymove=0;// then reset the 50 moves 
-    }
 
     // now we have cleared all our pieces that haas been captured off.
     // clear piece aur add piece function bhi shi h 
@@ -173,10 +157,8 @@ void take_move(s_board *pos){
     int from=from_sq(move);
     int to=to_sq(move);
 
-    ASSERT(sq_on_board(from));
-    ASSERT(sq_on_board(to));
-
-    pos->fortymove=pos->history[pos->hisply].fortymove;
+    ASSERT(sq_onboard(from));
+    ASSERT(sq_onboard(to));
 
     // flip the side and hash the side
     (pos->side)^=1;
@@ -186,10 +168,10 @@ void take_move(s_board *pos){
     // obviously capture se phle hi likha jaega
     // because we want to move our piece away before we add the captured piece on the to square
 
-    int capture=captured(move);
-    if(capture!=emptyy){
-        ASSERT(piece_valid(capture));
-        add_piece(to,pos,capture);//add the captued piece on the to square
+    int cap=captured(move);
+    if(cap!=emptyy){
+        ASSERT(piece_valid(cap));
+        add_piece(to,pos,cap);//add the captued piece on the to square
     }
     if(promoted(move)!=emptyy){//if promoted
         ASSERT(piece_valid(promoted(move)) && !piece_men[promoted(move)]);

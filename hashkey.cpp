@@ -18,7 +18,7 @@ u64 generate_pos_key(const s_board *pos){
     }
 
     if(pos->side==black)//cz it makes first move in ch white
-        finalkey^=side_key;
+        finalkey^=side_key;// dono board m alag alag ki chance h to same nhi hogi
 
     return finalkey;
 }
